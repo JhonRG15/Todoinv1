@@ -1,0 +1,10 @@
+node_modules/
+.env
+.DS_Store
+dist/
+build/
+*.log
+package-lock.json
+create-tables.js
+create-admin.js
+nodejs/

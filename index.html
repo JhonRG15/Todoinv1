@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To Do In — Descubre puntos de interés</title>
+  <meta name="description"
+    content="Plataforma colaborativa de geolocalización donde los usuarios proponen puntos de interés sobre un mapa.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <!-- ═══ MAPA ═══ -->
+  <div id="map"></div>
+
+  <!-- ═══ HEADER ═══ -->
+  <header id="header">
+    <div class="logo">To Do <span>In</span></div>
+    <div id="user-info" class="hidden">
+      <span id="user-badge">👤</span>
+      <span id="user-name"></span>
+    </div>
+  </header>
+
+  <!-- ═══ OVERLAY ═══ -->
+  <div id="overlay"></div>
+
+  <!-- ═══ FABs ═══ -->
+  <div id="fab-container">
+    <button class="fab fab-primary" id="btn-login" onclick="openPanel('panel-login')">
+      <span class="fab-icon">🔑</span> Iniciar Sesión
+    </button>
+    <button class="fab fab-dark" id="btn-register" onclick="openPanel('panel-register')">
+      <span class="fab-icon">📝</span> Registrarse
+    </button>
+    <button class="fab fab-success hidden" id="btn-add" onclick="openPanel('panel-add')">
+      <span class="fab-icon">📍</span> Agregar Lugar
+    </button>
+    <button class="fab fab-blue hidden" id="btn-mis" onclick="openMisPanel()">
+      <span class="fab-icon">🗺️</span> Mis Marcadores
+    </button>
+    <button class="fab fab-purple hidden" id="btn-admin" onclick="openAdminPanel()">
+      <span class="fab-icon">⚙️</span> Administrar
+    </button>
+    <button class="fab fab-logout hidden" id="btn-logout" onclick="doLogout()">
+      <span class="fab-icon">🚪</span> Salir
+    </button>
+  </div>
+
+  <!-- ═══ PANEL LOGIN ═══ -->
+  <div class="panel" id="panel-login">
+    <div class="panel-header">
+      <h2>🔑 Iniciar Sesión</h2>
+      <button class="btn-close" onclick="closePanel('panel-login')">×</button>
+    </div>
+    <div class="panel-body">
+      <div class="msg msg-error" id="login-err"></div>
+      <div class="msg msg-success" id="login-ok"></div>
+      <div class="form-group">
+        <label>Correo electrónico</label>
+        <input type="email" id="login-email" placeholder="tu@correo.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn btn-primary btn-full" id="btn-do-login" onclick="doLogin()">Iniciar Sesión</button>
+      <p style="text-align:center;margin-top:1.25rem;font-size:.85rem;color:var(--text2)">
+        ¿No tienes cuenta?
+        <a href="#" style="color:var(--accent)"
+          onclick="switchPanel('panel-login','panel-register');return false">Regístrate</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══ PANEL REGISTER ═══ -->
+  <div class="panel" id="panel-register">
+    <div class="panel-header">
+      <h2>📝 Crear Cuenta</h2>
+      <button class="btn-close" onclick="closePanel('panel-register')">×</button>
+    </div>
+    <div class="panel-body">
+      <div class="msg msg-error" id="reg-err"></div>
+      <div class="msg msg-success" id="reg-ok"></div>
+      <div class="form-group">
+        <label>Nombre completo</label>
+        <input type="text" id="reg-nombre" placeholder="Tu nombre" autocomplete="name">
+      </div>
+      <div class="form-group">
+        <label>Correo electrónico</label>
+        <input type="email" id="reg-email" placeholder="tu@correo.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" id="reg-pass" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+      </div>
+      <button class="btn btn-primary btn-full" id="btn-do-reg" onclick="doRegister()">Crear Cuenta</button>
+      <p style="text-align:center;margin-top:1.25rem;font-size:.85rem;color:var(--text2)">
+        ¿Ya tienes cuenta?
+        <a href="#" style="color:var(--accent)"
+          onclick="switchPanel('panel-register','panel-login');return false">Inicia sesión</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══ PANEL CREAR MARCADOR ═══ -->
+  <div class="panel" id="panel-add">
+    <div class="panel-header">
+      <h2>📍 Nuevo Lugar</h2>
+      <button class="btn-close" onclick="closePanelAdd()">×</button>
+    </div>
+    <div class="panel-body">
+      <div class="msg msg-error" id="add-err"></div>
+      <div class="loc-hint">
+        🖱️ Haz clic en el mapa para seleccionar la ubicación
+        <small id="loc-preview" style="opacity:.7;margin-top:.25rem;display:block"></small>
+      </div>
+      <div class="form-group">
+        <label>Título</label>
+        <input type="text" id="add-titulo" placeholder="Nombre del lugar">
+      </div>
+      <div class="form-group">
+        <label>Descripción</label>
+        <textarea id="add-desc" placeholder="Describe este lugar..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Categoría</label>
+        <select id="add-cat">
+          <option value="interes">📌 Punto de Interés</option>
+          <option value="restaurante">🍽️ Restaurante</option>
+          <option value="parque">🌳 Parque</option>
+          <option value="evento">⭐ Evento</option>
+          <option value="cultura">📚 Cultura</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Ciudad</label>
+        <select id="add-ciudad">
+          <option value="1">Bogotá</option>
+          <option value="2">Medellín</option>
+        </select>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+        <div class="form-group">
+          <label>Latitud</label>
+          <input type="text" id="add-lat" readonly placeholder="Clic en mapa">
+        </div>
+        <div class="form-group">
+          <label>Longitud</label>
+          <input type="text" id="add-lng" readonly placeholder="Clic en mapa">
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full" id="btn-do-add" onclick="doAddMarker()">Enviar para Aprobación</button>
+    </div>
+  </div>
+
+  <!-- ═══ PANEL MIS MARCADORES ═══ -->
+  <div class="panel" id="panel-mis">
+    <div class="panel-header">
+      <h2>🗺️ Mis Marcadores</h2>
+      <button class="btn-close" onclick="closePanel('panel-mis')">×</button>
+    </div>
+    <div class="panel-body">
+      <div class="msg msg-error" id="mis-err"></div>
+      <div class="msg msg-success" id="mis-ok"></div>
+      <div id="mis-list">
+        <div class="loading-box"><span class="spinner"></span> Cargando...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PANEL ADMIN ═══ -->
+  <div class="panel" id="panel-admin">
+    <div class="panel-header">
+      <h2>⚙️ Pendientes de Aprobación</h2>
+      <button class="btn-close" onclick="closePanel('panel-admin')">×</button>
+    </div>
+    <div class="panel-body">
+      <div class="msg msg-error" id="admin-err"></div>
+      <div id="admin-content">
+        <div class="loading-box"><span class="spinner"></span> Cargando...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MODAL CONFIRMAR ELIMINACIÓN ═══ -->
+  <div id="modal-confirm">
+    <div class="modal-box">
+      <h3>⚠️ Confirmar Eliminación</h3>
+      <p>¿Estás seguro de que quieres eliminar este marcador? Esta acción no se puede deshacer.</p>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+        <button class="btn btn-danger" id="modal-confirm-btn">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TOAST ═══ -->
+  <div id="toast"></div>
+
+  <!-- ═══ SCRIPTS ═══ -->
+  <script src="app.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCeLBKixUfmasreREcsVJeJJvONET0J6DQ&callback=initMap"
+    async defer></script>
+
+</body>
+
+</html>
